@@ -58,6 +58,9 @@ type StatType = {
   accessor: (player: Player) => number | undefined;
 };
 
+// Define player colors before using them
+const playerColors = ['#2563eb', '#dc2626', '#059669', '#d97706', '#7c3aed', '#db2777', '#0891b2', '#4f46e5'];
+
 const PlayerComparison = () => {
   // State management
   const [selectedPlayers, setSelectedPlayers] = useState<Player[]>([]);
@@ -66,6 +69,13 @@ const PlayerComparison = () => {
   const [chartType, setChartType] = useState<'radar' | 'bar' | 'scatter'>('radar');
   const [scatterXStat, setScatterXStat] = useState<string>('goals');
   const [scatterYStat, setScatterYStat] = useState<string>('assists');
+  const [showPlayerSelector, setShowPlayerSelector] = useState<boolean>(false);
+
+  // Get colors for players
+  const getPlayerColor = (player: Player): string => {
+    const index = selectedPlayers.findIndex(p => p.id === player.id);
+    return playerColors[index % playerColors.length];
+  };
 
   // Available statistics
   const stats: StatType[] = [
@@ -204,13 +214,6 @@ const PlayerComparison = () => {
     return insights.join(' ');
   };
 
-  // Get colors for players
-  const playerColors = ['#2563eb', '#dc2626', '#059669', '#d97706', '#7c3aed', '#db2777', '#0891b2', '#4f46e5'];
-  const getPlayerColor = (player: Player): string => {
-    const index = selectedPlayers.findIndex(p => p.id === player.id);
-    return playerColors[index % playerColors.length];
-  };
-
   return (
     <div className="container mx-auto px-4 py-24">
       <div className="max-w-4xl mx-auto">
@@ -222,7 +225,11 @@ const PlayerComparison = () => {
             <label className="block text-sm font-medium mb-2">Position Filter</label>
             <Select 
               value={position} 
-              onValueChange={(value) => setPosition(value as Position | 'ALL')}
+              onValueChange={(value) => {
+                setPosition(value as Position | 'ALL');
+                // Reset player selection when changing position
+                setSelectedPlayers([]);
+              }}
             >
               <SelectTrigger>
                 <SelectValue placeholder="Select position" />
@@ -254,59 +261,6 @@ const PlayerComparison = () => {
               </SelectContent>
             </Select>
           </div>
-        </div>
-        
-        {/* Player selection */}
-        <div className="mb-8">
-          <label className="block text-sm font-medium mb-2">
-            Select Players ({selectedPlayers.length}/{chartType === 'scatter' ? 8 : 4})
-          </label>
-          
-          <div className="bg-muted p-4 rounded-md">
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 mb-4">
-              {filteredPlayers.slice(0, 20).map((player) => (
-                <div
-                  key={player.id}
-                  onClick={() => handlePlayerSelect(player.id.toString())}
-                  className={cn(
-                    "p-2 border rounded-md cursor-pointer text-sm transition-colors text-center",
-                    selectedPlayers.some(p => p.id === player.id)
-                      ? "bg-primary text-primary-foreground border-primary"
-                      : "bg-card border-border hover:bg-muted"
-                  )}
-                >
-                  <div className="font-medium truncate">{player.name}</div>
-                  <div className="text-xs opacity-80">{player.position} - {player.team}</div>
-                </div>
-              ))}
-            </div>
-            
-            {filteredPlayers.length > 20 && (
-              <div className="text-center text-sm text-muted-foreground">
-                Showing 20 of {filteredPlayers.length} players. Use the position filter to narrow down results.
-              </div>
-            )}
-          </div>
-          
-          {selectedPlayers.length > 0 && (
-            <div className="mt-4 flex flex-wrap gap-2">
-              {selectedPlayers.map((player) => (
-                <div
-                  key={player.id}
-                  className="inline-flex items-center gap-1.5 py-1 px-2.5 rounded-full text-xs font-medium"
-                  style={{ backgroundColor: `${getPlayerColor(player)}20`, color: getPlayerColor(player) }}
-                >
-                  {player.name}
-                  <button
-                    onClick={() => setSelectedPlayers(prev => prev.filter(p => p.id !== player.id))}
-                    className="ml-1 hover:opacity-80"
-                  >
-                    ×
-                  </button>
-                </div>
-              ))}
-            </div>
-          )}
         </div>
         
         {/* Chart Selection */}
@@ -346,13 +300,74 @@ const PlayerComparison = () => {
           </button>
         </div>
         
+        {/* Button to show player selection */}
+        <button
+          onClick={() => setShowPlayerSelector(!showPlayerSelector)}
+          className="w-full mb-6 py-2 bg-secondary hover:bg-secondary/80 text-secondary-foreground rounded-md flex items-center justify-center gap-2"
+        >
+          <span>{showPlayerSelector ? "Hide Player Selection" : "Select Players"}</span>
+          <span className="text-xs opacity-80">({selectedPlayers.length}/{chartType === 'scatter' ? 8 : 4})</span>
+        </button>
+        
+        {/* Player selection */}
+        {showPlayerSelector && (
+          <div className="mb-8">
+            <div className="bg-muted p-4 rounded-md">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 mb-4">
+                {filteredPlayers.slice(0, 20).map((player) => (
+                  <div
+                    key={player.id}
+                    onClick={() => handlePlayerSelect(player.id.toString())}
+                    className={cn(
+                      "p-2 border rounded-md cursor-pointer text-sm transition-colors text-center",
+                      selectedPlayers.some(p => p.id === player.id)
+                        ? "bg-primary text-primary-foreground border-primary"
+                        : "bg-card border-border hover:bg-muted"
+                    )}
+                  >
+                    <div className="font-medium truncate">{player.name}</div>
+                    <div className="text-xs opacity-80">{player.position} - {player.team}</div>
+                  </div>
+                ))}
+              </div>
+              
+              {filteredPlayers.length > 20 && (
+                <div className="text-center text-sm text-muted-foreground">
+                  Showing 20 of {filteredPlayers.length} players. Use the position filter to narrow down results.
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+        
+        {/* Selected players chips */}
+        {selectedPlayers.length > 0 && (
+          <div className="mb-6 flex flex-wrap gap-2">
+            {selectedPlayers.map((player) => (
+              <div
+                key={player.id}
+                className="inline-flex items-center gap-1.5 py-1 px-2.5 rounded-full text-xs font-medium"
+                style={{ backgroundColor: `${getPlayerColor(player)}20`, color: getPlayerColor(player) }}
+              >
+                {player.name}
+                <button
+                  onClick={() => setSelectedPlayers(prev => prev.filter(p => p.id !== player.id))}
+                  className="ml-1 hover:opacity-80"
+                >
+                  ×
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+        
         {/* Visualization */}
         <div className="bg-card border rounded-lg p-6 mb-8">
           {selectedPlayers.length === 0 ? (
             <div className="text-center py-12 text-muted-foreground">
               <ArrowDownUp className="mx-auto mb-3 opacity-30" size={48} />
               <p className="text-lg font-medium">Select players to compare</p>
-              <p className="text-sm">Choose players above to see comparison visualizations</p>
+              <p className="text-sm">Use the "Select Players" button above to choose players</p>
             </div>
           ) : (
             <>
