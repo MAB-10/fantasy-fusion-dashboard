@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo } from 'react';
 import {
   Tabs,
@@ -78,7 +77,6 @@ const LeagueStats = () => {
   const [season, setSeason] = useState<string>("2023/24");
   const [league, setLeague] = useState<string>("Premier League");
   
-  // Fix: map the teams array from mockData to the TeamStat type
   const teamStats: TeamStat[] = useMemo(() => {
     return mockData.teams.map(team => ({
       id: team.id,
@@ -96,14 +94,13 @@ const LeagueStats = () => {
       xG: team.xG,
       xGA: team.xGA,
       possession: team.possession,
-      passAccuracy: Math.round(Math.random() * 30 + 65), // Generate random pass accuracy as it's not in the Team type
-      tackles: Math.round(Math.random() * 50 + 150), // Generate random tackles as it's not in the Team type
-      interceptions: Math.round(Math.random() * 40 + 120), // Generate random interceptions as it's not in the Team type
+      passAccuracy: Math.round(Math.random() * 30 + 65),
+      tackles: Math.round(Math.random() * 50 + 150),
+      interceptions: Math.round(Math.random() * 40 + 120),
       cleanSheets: team.cleanSheets,
     }));
   }, []);
   
-  // Sort function for team stats
   const sortedTeamStats = useMemo(() => {
     return [...teamStats].sort((a, b) => {
       const valueA = a[sortField];
@@ -123,7 +120,6 @@ const LeagueStats = () => {
     });
   }, [teamStats, sortField, sortDirection]);
   
-  // Function to handle column sort
   const handleSort = (field: SortField) => {
     if (field === sortField) {
       setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
@@ -133,7 +129,6 @@ const LeagueStats = () => {
     }
   };
   
-  // Chart data for attacking stats
   const attackingData = useMemo(() => {
     return teamStats.map(team => ({
       name: team.name,
@@ -144,7 +139,6 @@ const LeagueStats = () => {
     }));
   }, [teamStats, selectedTeam]);
   
-  // Chart data for defensive stats
   const defensiveData = useMemo(() => {
     return teamStats.map(team => ({
       name: team.name,
@@ -156,7 +150,6 @@ const LeagueStats = () => {
     }));
   }, [teamStats, selectedTeam]);
   
-  // Chart data for possession stats
   const possessionData = useMemo(() => {
     return teamStats.map(team => ({
       name: team.name,
@@ -166,7 +159,6 @@ const LeagueStats = () => {
     }));
   }, [teamStats, selectedTeam]);
   
-  // AI-generated insights
   const generateInsights = () => {
     const goalLeader = [...teamStats].sort((a, b) => b.goalsFor - a.goalsFor)[0];
     const defenseLeader = [...teamStats].sort((a, b) => a.goalsAgainst - b.goalsAgainst)[0];
@@ -188,7 +180,6 @@ const LeagueStats = () => {
       <div className="max-w-6xl mx-auto">
         <h1 className="text-3xl font-bold mb-8">Team League Stats & Table</h1>
         
-        {/* Season and League Filters */}
         <div className="flex gap-4 mb-6">
           <div className="w-1/2">
             <Select
@@ -230,7 +221,6 @@ const LeagueStats = () => {
             <TabsTrigger value="stats">Team Statistics</TabsTrigger>
           </TabsList>
           
-          {/* League Table Tab */}
           <TabsContent value="table" className="mt-6">
             <div className="mb-4 flex items-center justify-between">
               <h2 className="text-xl font-semibold">{league} {season}</h2>
@@ -362,7 +352,6 @@ const LeagueStats = () => {
             </div>
           </TabsContent>
           
-          {/* Team Statistics Tab */}
           <TabsContent value="stats" className="mt-6">
             <div className="mb-6 flex items-end gap-4">
               <div className="w-1/3">
@@ -387,7 +376,7 @@ const LeagueStats = () => {
               </div>
             </div>
             
-            <div className="bg-card border rounded-lg p-6 mb-8">
+            <div className="bg-card border rounded-lg p-6 mb-12">
               {selectedMetric === 'attacking' && (
                 <div className="h-[400px]">
                   <ChartContainer config={{}}>
@@ -480,7 +469,6 @@ const LeagueStats = () => {
               )}
             </div>
             
-            {/* Selected Team Details */}
             {selectedTeam && (
               <div className="bg-muted p-6 rounded-lg mb-8">
                 <h3 className="text-lg font-bold mb-4">
@@ -548,13 +536,12 @@ const LeagueStats = () => {
           </TabsContent>
         </Tabs>
         
-        {/* AI Insights Section */}
-        <div className="bg-card border rounded-lg p-6">
+        <div className="bg-card border rounded-lg p-6 mt-8">
           <div className="flex items-center gap-2 mb-4">
             <Info size={20} className="text-primary" />
             <h2 className="text-xl font-bold">AI Insights</h2>
           </div>
-          <div className="text-foreground/80 overflow-hidden">
+          <div className="text-foreground/80 overflow-auto max-h-[300px]">
             {generateInsights()}
           </div>
         </div>
