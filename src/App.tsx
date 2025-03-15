@@ -8,6 +8,8 @@ import Header from "@/components/layout/Header";
 import PageTransition from "@/components/layout/PageTransition";
 import Index from "./pages/Index";
 import BestXI from "./pages/BestXI";
+import PlayerComparison from "./pages/PlayerComparison";
+import LeagueStats from "./pages/LeagueStats";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -21,6 +23,8 @@ const AppRoutes = () => {
       <Routes location={location}>
         <Route path="/" element={<Index />} />
         <Route path="/best-xi" element={<BestXI />} />
+        <Route path="/player-comparison" element={<PlayerComparison />} />
+        <Route path="/league-stats" element={<LeagueStats />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </PageTransition>
