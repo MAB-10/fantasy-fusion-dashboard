@@ -12,7 +12,16 @@ const PageTransition: React.FC<PageTransitionProps> = ({ children }) => {
   const [transitionStage, setTransitionStage] = useState('fadeIn');
   
   useEffect(() => {
-    if (location.pathname !== displayChildren.props.location.pathname) {
+    // We need to check if the children is a valid React element before accessing props
+    const childrenPathname = React.isValidElement(children) 
+      ? (children.props.location?.pathname || location.pathname)
+      : location.pathname;
+      
+    const displayChildrenPathname = React.isValidElement(displayChildren)
+      ? (displayChildren.props.location?.pathname || location.pathname)
+      : location.pathname;
+    
+    if (childrenPathname !== displayChildrenPathname) {
       setTransitionStage('fadeOut');
       
       const timeout = setTimeout(() => {
@@ -22,7 +31,7 @@ const PageTransition: React.FC<PageTransitionProps> = ({ children }) => {
       
       return () => clearTimeout(timeout);
     }
-  }, [location, children, displayChildren.props.location.pathname]);
+  }, [location, children, displayChildren]);
   
   return (
     <div 

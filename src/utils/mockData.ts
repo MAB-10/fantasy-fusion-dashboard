@@ -155,7 +155,8 @@ export const generatePlayers = (count: number = 50): Player[] => {
       name,
       team,
       position,
-      price: (4 + Math.random() * 8).toFixed(1),
+      // Convert string to number using parseFloat
+      price: parseFloat((4 + Math.random() * 8).toFixed(1)),
       totalPoints,
       form: Math.round(Math.random() * 10 * 10) / 10,
       xG: Math.round(Math.random() * goals * 1.2 * 10) / 10,
