@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo } from 'react';
 import {
   Tabs,
@@ -41,7 +40,7 @@ import {
   LineChart,
   Line
 } from 'recharts';
-import { mockData } from '@/utils/mockData';
+import { mockData, Team } from '@/utils/mockData';
 import { ArrowUpDown, Info } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -76,7 +75,30 @@ const LeagueStats = () => {
   const [selectedMetric, setSelectedMetric] = useState<'attacking' | 'defensive' | 'possession'>('attacking');
   const [selectedTeam, setSelectedTeam] = useState<number | null>(null);
   
-  const teamStats: TeamStat[] = mockData.teamStats;
+  // Fix: map the teams array from mockData to the TeamStat type
+  const teamStats: TeamStat[] = useMemo(() => {
+    return mockData.teams.map(team => ({
+      id: team.id,
+      name: team.name,
+      position: team.position,
+      played: team.played,
+      won: team.won,
+      drawn: team.drawn,
+      lost: team.lost,
+      goalsFor: team.gf,
+      goalsAgainst: team.ga,
+      goalDifference: team.gd,
+      points: team.points,
+      form: team.form,
+      xG: team.xG,
+      xGA: team.xGA,
+      possession: team.possession,
+      passAccuracy: Math.round(Math.random() * 30 + 65), // Generate random pass accuracy as it's not in the Team type
+      tackles: Math.round(Math.random() * 50 + 150), // Generate random tackles as it's not in the Team type
+      interceptions: Math.round(Math.random() * 40 + 120), // Generate random interceptions as it's not in the Team type
+      cleanSheets: team.cleanSheets,
+    }));
+  }, []);
   
   // Sort function for team stats
   const sortedTeamStats = useMemo(() => {
