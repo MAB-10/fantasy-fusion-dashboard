@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo } from 'react';
 import {
   Tabs,
@@ -74,6 +75,8 @@ const LeagueStats = () => {
   const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
   const [selectedMetric, setSelectedMetric] = useState<'attacking' | 'defensive' | 'possession'>('attacking');
   const [selectedTeam, setSelectedTeam] = useState<number | null>(null);
+  const [season, setSeason] = useState<string>("2023/24");
+  const [league, setLeague] = useState<string>("Premier League");
   
   // Fix: map the teams array from mockData to the TeamStat type
   const teamStats: TeamStat[] = useMemo(() => {
@@ -185,6 +188,42 @@ const LeagueStats = () => {
       <div className="max-w-6xl mx-auto">
         <h1 className="text-3xl font-bold mb-8">Team League Stats & Table</h1>
         
+        {/* Season and League Filters */}
+        <div className="flex gap-4 mb-6">
+          <div className="w-1/2">
+            <Select
+              value={league}
+              onValueChange={setLeague}
+            >
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Select league" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Premier League">Premier League</SelectItem>
+                <SelectItem value="La Liga">La Liga</SelectItem>
+                <SelectItem value="Bundesliga">Bundesliga</SelectItem>
+                <SelectItem value="Serie A">Serie A</SelectItem>
+                <SelectItem value="Ligue 1">Ligue 1</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="w-1/2">
+            <Select
+              value={season}
+              onValueChange={setSeason}
+            >
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Select season" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="2023/24">2023/24</SelectItem>
+                <SelectItem value="2022/23">2022/23</SelectItem>
+                <SelectItem value="2021/22">2021/22</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+        
         <Tabs defaultValue="table" className="w-full mb-8">
           <TabsList className="grid w-full max-w-md mx-auto grid-cols-2">
             <TabsTrigger value="table">League Table</TabsTrigger>
@@ -194,9 +233,9 @@ const LeagueStats = () => {
           {/* League Table Tab */}
           <TabsContent value="table" className="mt-6">
             <div className="mb-4 flex items-center justify-between">
-              <h2 className="text-xl font-semibold">Premier League 2023/24</h2>
+              <h2 className="text-xl font-semibold">{league} {season}</h2>
               <div className="text-sm text-muted-foreground">
-                Showing all 20 teams
+                Showing all {teamStats.length} teams
               </div>
             </div>
             
@@ -325,22 +364,25 @@ const LeagueStats = () => {
           
           {/* Team Statistics Tab */}
           <TabsContent value="stats" className="mt-6">
-            <div className="mb-6">
-              <Select
-                value={selectedMetric}
-                onValueChange={(value) => setSelectedMetric(value as 'attacking' | 'defensive' | 'possession')}
-              >
-                <SelectTrigger className="w-[200px]">
-                  <SelectValue placeholder="Select metric" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="attacking">Attacking Stats</SelectItem>
-                  <SelectItem value="defensive">Defensive Stats</SelectItem>
-                  <SelectItem value="possession">Possession Stats</SelectItem>
-                </SelectContent>
-              </Select>
+            <div className="mb-6 flex items-end gap-4">
+              <div className="w-1/3">
+                <label className="block text-sm font-medium mb-2">Metric Type</label>
+                <Select
+                  value={selectedMetric}
+                  onValueChange={(value) => setSelectedMetric(value as 'attacking' | 'defensive' | 'possession')}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select metric" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="attacking">Attacking Stats</SelectItem>
+                    <SelectItem value="defensive">Defensive Stats</SelectItem>
+                    <SelectItem value="possession">Possession Stats</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
               
-              <div className="mt-2 text-sm text-muted-foreground">
+              <div className="text-sm text-muted-foreground">
                 Click on a team in the chart or table to highlight their stats
               </div>
             </div>
@@ -512,7 +554,7 @@ const LeagueStats = () => {
             <Info size={20} className="text-primary" />
             <h2 className="text-xl font-bold">AI Insights</h2>
           </div>
-          <div className="text-foreground/80">
+          <div className="text-foreground/80 overflow-hidden">
             {generateInsights()}
           </div>
         </div>
